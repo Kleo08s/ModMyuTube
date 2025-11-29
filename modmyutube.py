@@ -44,8 +44,8 @@ logger.propagate = False
 def check_os():
     system = platform.system()
     if system not in ["Linux", "Darwin"]:
-        logger.error(f"OS non supportato: {system}")
-        logger.error("Questo script funziona solo su Linux e macOS")
+        logger.error(f"Unsupported OS: {system}")
+        logger.error("This script only works on Linux and macOS")
         sys.exit(1)
     return system
 
@@ -66,16 +66,16 @@ def install_dependencies():
         missing.append("cyan")
     
     if not missing:
-        logger.debug("Tutte le dipendenze sono già installate")
+        logger.debug("All dependencies are already installed")
         return
     
-    logger.info(f"Installazione dipendenze mancanti: {', '.join(missing)}")
+    logger.info(f"Installing missing dependencies: {', '.join(missing)}")
     
     if "git" in missing:
-        logger.debug("Installazione git...")
+        logger.debug("Installing git...")
         if system == "Darwin":
             if not check_command("brew"):
-                logger.error("Homebrew non trovato. Installalo da https://brew.sh")
+                logger.error("Homebrew not found. Install it from https://brew.sh")
                 sys.exit(1)
             subprocess.run(["brew", "install", "git"], check=True)
         elif system == "Linux":
@@ -86,11 +86,11 @@ def install_dependencies():
                 try:
                     subprocess.run(["sudo", "yum", "install", "-y", "git"], check=True)
                 except subprocess.CalledProcessError:
-                    logger.error("Impossibile installare git automaticamente")
+                    logger.error("Unable to install git automatically")
                     sys.exit(1)
     
     if "cyan" in missing:
-        logger.debug("Installazione cyan (pyzule-rw)...")
+        logger.debug("Installing cyan (pyzule-rw)...")
         
         if check_command("pipx"):
             try:
@@ -98,30 +98,30 @@ def install_dependencies():
                     "pipx", "install", "--force",
                     "https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip"
                 ], check=True)
-                logger.info("Cyan installato con successo tramite pipx")
+                logger.info("Cyan successfully installed via pipx")
             except subprocess.CalledProcessError as e:
-                logger.error(f"Errore durante l'installazione di cyan: {e}")
+                logger.error(f"Error installing cyan: {e}")
                 sys.exit(1)
         elif check_command("pip3") or check_command("pip"):
             pip_cmd = "pip3" if check_command("pip3") else "pip"
             
             try:
-                logger.debug("Installazione setuptools...")
+                logger.debug("Installing setuptools...")
                 subprocess.run([
                     pip_cmd, "install", "--user", "--break-system-packages", "setuptools"
                 ], check=True)
                 
-                logger.debug("Installazione pyzule-rw...")
+                logger.debug("Installing pyzule-rw...")
                 subprocess.run([
                     pip_cmd, "install", "--user", "--break-system-packages",
                     "https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip"
                 ], check=True)
-                logger.info("Cyan installato con successo tramite pip")
+                logger.info("Cyan successfully installed via pip")
             except subprocess.CalledProcessError as e:
-                logger.error(f"Errore durante l'installazione di cyan: {e}")
+                logger.error(f"Error installing cyan: {e}")
                 sys.exit(1)
         else:
-            logger.error("Né pipx né pip trovati. Installa Python3 e pip/pipx")
+            logger.error("Neither pipx nor pip found. Install Python3 and pip/pipx")
             sys.exit(1)
         
         user_bin = Path.home() / ".local" / "bin"
@@ -291,7 +291,7 @@ def download_safari_extension():
         if appex_path.exists():
             copy_folder_no_chmod(appex_path, target_path)
         else:
-            raise Exception("OpenYoutubeSafariExtension.appex non trovato dopo il clone!")
+            raise Exception("OpenYoutubeSafariExtension.appex not found after cloning!")
     except Exception as e:
         logger.error(e)
 
@@ -300,7 +300,7 @@ def main():
     print("=== ModMyuTube ===")
     
     system = check_os()
-    logger.info(f"Sistema operativo rilevato: {system}")
+    logger.info(f"Detected operating system: {system}")
     
     install_dependencies()
     
@@ -339,16 +339,16 @@ def main():
     try:
         run_cmd(cmd_inject)
     except Exception:
-        logger.error("Errore durante la creazione dell'IPA")
+        logger.error("Error creating IPA file")
         return
 
     output_ipa = Path.cwd() / f"YouTubePlus_{tweak_version}.ipa"
     if not output_ipa.exists():
-        logger.error(f"File {output_ipa.name} non trovato dopo la build")
+        logger.error(f"File {output_ipa.name} not found after build")
         return
 
     print()
-    logger.info(f"IPA creato con successo: {output_ipa.name}")
+    logger.info(f"IPA successfully created: {output_ipa.name}")
     logger.warning('When opening YouTube ignore "Incompatible Tweaks Detected" by selecting "Dont Show for This Version" and "I Accept All Risks".')
 
 if __name__ == "__main__":
